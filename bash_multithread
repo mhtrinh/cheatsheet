@@ -1,0 +1,88 @@
+Mostly from chatGPT :D
+```bash
+#!/bin/bash
+
+todo_file="/dev/shm/vqz.list"
+done_dir="/dev/shm/done"
+
+log_dir=".logs.$$"
+max_parallel=4  # Set the maximum number of parallel processes
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <path to root folder of vqzs>"
+    exit 1
+fi
+root_dir=$1
+
+mkdir -p "$log_dir"
+mkdir -p "$done_dir"
+
+echoLog (){
+    echo "$(date): $@"
+}
+
+process_one() {
+    set -e
+    data="$1"
+    # My code start here
+    echoLog "Done"
+}
+
+
+run_task() {
+    local argument="$1"
+    local worker_id="$2"
+    local log_file="$log_dir/worker_$worker_id.log"
+    echoLog "$log_file: $argument"
+    process_one "$argument" >> "$log_file" 2>&1
+}
+
+# Function to clean up and exit gracefully
+clean_exit() {
+    echoLog "Cleaning up..."
+    trap - INT  # Remove the interrupt trap
+    # Kill all background processes
+    for job in $(jobs -p); do
+        kill "$job"
+    done
+    wait  # Wait for all processes to terminate
+    echoLog "All tasks have been stopped."
+    exit
+}
+
+# Set up the interrupt trap
+trap clean_exit INT
+
+main ()
+{
+    # Get todo list :
+    find $root_dir -type f -iname "*.png" > $todo_file
+
+    # Counter for tracking the number of active background processes
+    local active_jobs=0
+    local worker_id=1
+
+    # Read the input file line by line
+    while IFS= read -r argument; do
+        # Wait if the maximum number of parallel processes is reached
+        active_jobs=$(jobs -p | wc -l)
+        while [ "$active_jobs" -ge "$max_parallel" ]; do
+            sleep 1  # Adjust the sleep duration as needed
+            active_jobs=$(jobs -p | wc -l)
+        done
+
+        # Run the task in the background with the worker ID and increment counters
+        ( run_task "$argument" "$worker_id" ) &
+
+        worker_id=$((worker_id % max_parallel + 1))
+    done < "$todo_file"
+
+    # Wait for all background processes to finish
+    echoLog "Waiting for last workers to finish ..."
+    wait
+
+    echoLog "All tasks have completed."
+}
+
+
+main |& tee -a $log_dir/main.log
