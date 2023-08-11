@@ -6,6 +6,7 @@ todo_file="/dev/shm/vqz.list"
 done_dir="/dev/shm/done"
 
 log_dir=".logs.$$"
+error_log="$log_dir/error.log"
 max_parallel=4  # Set the maximum number of parallel processes
 
 if [ $# -lt 1 ]; then
@@ -22,10 +23,14 @@ echoLog (){
 }
 
 process_one() {
-    set -e
-    data="$1"
-    # My code start here
-    echoLog "Done"
+    path=$1
+    echoLog "Processing: $path"
+    python3 runme.py "$root_dir" "$path"
+    res=$?
+    if [ $res -ne 0 ]; then
+        return $res
+    fi
+    return 0
 }
 
 
@@ -35,6 +40,9 @@ run_task() {
     local log_file="$log_dir/worker_$worker_id.log"
     echoLog "$log_file: $argument"
     process_one "$argument" >> "$log_file" 2>&1
+    if [ $? -ne 0 ]; then
+        echoLog "$log_file: ERROR processing $argument" | tee -a  $error_log
+    fi
 }
 
 # Function to clean up and exit gracefully
@@ -55,15 +63,16 @@ trap clean_exit INT
 
 main ()
 {
-    # Get todo list :
-    find $root_dir -type f -iname "*.png" > $todo_file
+    # Get vqz list :
+    find $root_dir -type f -iname "*.vqz" > $todo_file
 
     # Counter for tracking the number of active background processes
     local active_jobs=0
     local worker_id=1
 
     # Read the input file line by line
-    while IFS= read -r argument; do
+    exec 9< "$todo_file"
+    while IFS= read -r -u 9 argument; do
         # Wait if the maximum number of parallel processes is reached
         active_jobs=$(jobs -p | wc -l)
         while [ "$active_jobs" -ge "$max_parallel" ]; do
@@ -75,7 +84,7 @@ main ()
         ( run_task "$argument" "$worker_id" ) &
 
         worker_id=$((worker_id % max_parallel + 1))
-    done < "$todo_file"
+    done
 
     # Wait for all background processes to finish
     echoLog "Waiting for last workers to finish ..."
