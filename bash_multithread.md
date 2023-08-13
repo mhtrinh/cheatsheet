@@ -22,6 +22,26 @@ echoLog (){
     echo "$(date): $@"
 }
 
+
+lock() {
+    touch $1.lock
+}
+
+unlock() {
+    rm -f $1.lock
+}
+
+get_worker_id(){
+    for i in $(seq 1 $max_parallel); do
+        if [ ! -f $i.lock ]; then
+            echo $i
+            return 0
+        fi
+    done
+    return 1
+}
+
+
 process_one() {
     path=$1
     echoLog "Processing: $path"
@@ -76,14 +96,18 @@ main ()
         # Wait if the maximum number of parallel processes is reached
         active_jobs=$(jobs -p | wc -l)
         while [ "$active_jobs" -ge "$max_parallel" ]; do
-            sleep 1  # Adjust the sleep duration as needed
+            wait -n
             active_jobs=$(jobs -p | wc -l)
         done
 
+        worker_id=$(get_worker_id)
         # Run the task in the background with the worker ID and increment counters
-        ( run_task "$argument" "$worker_id" ) &
+        (
+            lock $worker_id
+            run_task "$argument" "$worker_id"
+            unlock $worker_id
+        ) &
 
-        worker_id=$((worker_id % max_parallel + 1))
     done
 
     # Wait for all background processes to finish
