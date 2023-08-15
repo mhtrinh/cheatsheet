@@ -1,0 +1,2 @@
+# Python debug
+`"cwd": "${fileDirname}"`
