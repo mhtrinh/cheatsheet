@@ -27,3 +27,34 @@ git push origin --delete <branch>
 !*/
 !SOURCES
 ```
+
+# Use a non-default key when cloning
+```
+GIT_SSH_COMMAND='ssh -i private_key_file -o IdentitiesOnly=yes' git clone user@host:repo.git
+```
+
+# ssh key with multi account
+Source: https://blog.gitguardian.com/8-easy-steps-to-set-up-multiple-git-accounts/
+
+- Create a new key call `githubPerso` with `ssh-keygen`
+- Append to `~/.gitconfig` :
+```
+  [includeIf "gitdir:/path/to/folder/personal/"]  # Trailing '/' is very important
+        path = ~/.gitconfig-perso
+  ```
+- Edit `~/.gitconfig-perso`:
+```
+[user]
+email = perso@email
+name = Hieu Trinh
+ 
+[core]
+sshCommand = "ssh -i ~/.ssh/githubPerso"
+  ```
+
+It is possible to switch profile based on the remote url as :
+```
+[includeIf "hasconfig:remote.*.url:git@github.com:mhtrinh/**"]
+    path = ~/.gitconfig-perso
+```
+But this require fairly recent git version: 2.36 or above
