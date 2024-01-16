@@ -46,7 +46,7 @@ Source: https://blog.gitguardian.com/8-easy-steps-to-set-up-multiple-git-account
 ```
 [user]
 email = perso@email
-name = Hieu Trinh
+name = mhtrinh
  
 [core]
 sshCommand = "ssh -i ~/.ssh/githubPerso"
