@@ -6,4 +6,4 @@ You can create bundle by simply concatenating crt files
 and some is Zscalered and some are whitelisted, then you need several certificates ! The solution seems to be creating your own bundle by concat all certificate in `/etc/ssl/certs` and Zscaler one. 
 Then use `REQUESTS_CA_BUNDLE` to that custom bundle file. 
 
-`REQUESTS_CA_BUNDLE` also support path to folder ! So you may not need to concat ? 
+`REQUESTS_CA_BUNDLE` also support path to folder ! But the effect is not completely the same. I  found some case (ClearML + Lakefs) where the bundle work but not the folder approach
