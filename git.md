@@ -19,6 +19,26 @@ git push origin --tags
 git push origin --delete <branch>
 ```
 
+# Porting commit from one repo to another
+Generate a patch file per commit, using relative path, in case your destination have different folder structure
+```
+git format-patch --relative -o /path/to/patches/ 234f94fdfed7e9..HEAD
+```
+Apply the commits:
+```
+git am --directory <relative folder> /path/to/patches/*
+```
+
+In case last commit is a merge commit, more manual patching is required:
+```
+git log -p --reverse --pretty=email --stat -m --first-parent -1 HEAD > /dev/shm/last.patch
+git am --directory modelreproduce --reject /dev/shm/last.patch  # This will apply the best it can and leave a bunch of reject.
+git add <file that been patched>
+git am --continue
+```
+Because merge commit also include other commit that already been applied, it will failed to apply those changes, which you can safely ignore and continue.
+
+
 # .gitignore
 
 ## Ignore all and include only some
