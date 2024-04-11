@@ -99,3 +99,10 @@ git gc --prune=now --aggressive
 This will rewrite history, trimming each commit from those files. `--replace-refs delete-no-add` is nice to have when your git repo been migrated from svn, it will transform remote refs to normal branch.
 
 
+# Concatenating 2 git history
+Use case: 2 commit history that are linear but disjoint (because of svn migration for eg ...):
+- old-branch: c1, c2, c3, ... c10
+- new-branch: c11, c12, c13, ... c20
+
+To concat them: https://ben.straubnet.net/post/939181602/git-grafting-repositories
+
