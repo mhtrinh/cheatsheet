@@ -1,3 +1,38 @@
+### Hieu confusion matrix
+```python
+def plot_hieu_confusion_matrix(gt, predicted, class_names, title=None):
+    from sklearn.metrics import confusion_matrix
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import numpy as np
+
+    cm = confusion_matrix(gt, predicted)
+
+    cmmod = np.copy(cm)
+    np.fill_diagonal(cmmod, 0)
+    maxval = np.max(cmmod)
+    sns.heatmap(cmmod, annot=False, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    plt.xticks(rotation=40, ha='right')
+
+    # Adjust text color for masked cells
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            if cm[i, j] == 0:
+                plt.text(j + 0.5, i + 0.5, '-', ha='center', va='center', color='black')
+            else:
+                if cm[i, j] < maxval / 3 or i == j:
+                    color = 'black'
+                else:
+                    color = 'white'
+                plt.text(j + 0.5, i + 0.5, cm[i, j], ha='center', va='center', color=color)
+
+    plt.xlabel('Predicted')
+    plt.ylabel('Human label')
+    if title is None:
+        plt.title('Hieu Confusion Matrix')
+    else:
+        plt.title(title)
+```
 
 ### Custom legend color bar
 ```python
