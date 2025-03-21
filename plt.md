@@ -1,3 +1,46 @@
+### Double y-axis Time and FPS
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)  # X values from 0 to 10
+y = np.exp(x / 10) * 15      # Positive curve with y ranging from ~5 to ~50
+
+plt.figure(figsize=(10, 6))
+plt.plot(x, y, label='Curve')
+plt.xlabel('X')
+plt.ylabel('Time (ms)')
+plt.title('Y time and fps')
+
+plt.ylim(0, 50)
+plt.grid()
+plt.legend()
+
+# FPS axis
+ax2 = plt.gca().twinx()
+ax2.set_ylabel('FPS')
+
+ax2.set_ylim(0,50)
+
+tick_positions = ax2.get_yticks()
+tick_labels = ax2.get_yticklabels()
+labels = [float(label.get_text()) for label in tick_labels]
+relabels = []
+for label in labels:
+    if label == 0:
+        relabels.append("")
+    else:
+        relabels.append(f"{1000/label:.0f}")
+ax2.set_yticks(tick_positions,relabels)
+
+# Important: set tick will change the ylim in order to display everything and mess up with the position.
+# Reset the ylim to the original value
+ax2.set_ylim(0,50)
+
+plt.show()
+```
+![time_and_fps](time_and_fps.png)
+
 ### Hieu confusion matrix
 ```python
 def plot_hieu_confusion_matrix(gt, predicted, class_names, title=None):
@@ -51,7 +94,7 @@ def colorBar(mini=0, maxi=1,
     plt.xticks(np.arange(mini,maxi*1.1,(maxi-mini)/(nLabel+1)))
     plt.show()
 ```
-    
+
 ### Get color from value
 ```python
 cmap = matplotlib.cm.get_cmap('viridis')
@@ -86,8 +129,8 @@ You need to set a column because  `DateTimeIndex` do not have `between()` while 
 ``` python
 import matplotlib.pyplot as plt
 
-plt.rcParams["figure.figsize"] = (20,10) 
-plt.rcParams.update({'font.size': 14})    
+plt.rcParams["figure.figsize"] = (20,10)
+plt.rcParams.update({'font.size': 14})
 ```
 
 
@@ -95,7 +138,7 @@ plt.rcParams.update({'font.size': 14})
 ``` python
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator)
 
-plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1)) 
+plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
 plt.grid()
 plt.grid(which="minor",alpha=0.2)
 ```
@@ -104,7 +147,7 @@ For dates:
 ``` python
 import matplotlib.dates as mdates
 
-plt.gca().yaxis.set_minor_locator(mdates.DayLocator(interval=5)) 
+plt.gca().yaxis.set_minor_locator(mdates.DayLocator(interval=5))
 plt.grid()
 plt.grid(which="minor",alpha=0.2)
 ```
@@ -122,7 +165,7 @@ For dates:
 plt.gcf().autofmt_xdate()
 ```
 
-For non-date one: 
+For non-date one:
 ```python
 plt.xticks(rotation=30)
 ```
@@ -174,7 +217,7 @@ fig=plt.figure(figsize=(20,18))  # Optional: define figure size
 ax1 = plt.subplot(211)  # in a 2 rows, 1 cols setup, figure 1, : we call it ax1
 ax2 = plt.subplot(212)  # in a 2 rows, 1 cols setup, figure 2, : we call it ax2
 
-plt.sca(ax1)  # We now plot on to ax1 
+plt.sca(ax1)  # We now plot on to ax1
 plt.plot(....)
 plt.legend( ...)
 
@@ -186,7 +229,7 @@ plt.subplots_adjust(wspace=0.5, hspace=0) # For tightening space between plot
 plt.show()
 ```
 
-### Merge row subplot 
+### Merge row subplot
 This give merge first row and have 2 columns plot in second row.
 ```python
 ax1 = plt.subplot(211)
@@ -202,18 +245,18 @@ import seaborn as sns
 sns.kdeplot(l.spike,label = "chudleigh",
             fill=True,linewidth=3,
             clip=(0,4))
-            
+
 sns.kdeplot(c.spike,label = "crv",
             fill=True,linewidth=3,
             clip=(0,4))
-            
+
 # DECAPRECATED
 #sns.distplot(l.spike, hist = False, kde = True,
-#                 kde_kws = {'shade': True, 'linewidth': 3}, 
+#                 kde_kws = {'shade': True, 'linewidth': 3},
 #                  label = "chudleigh")
 #sns.distplot(c.spike, hist = False, kde = True,
-#                 kde_kws = {'shade': True, 'linewidth': 3}, 
+#                 kde_kws = {'shade': True, 'linewidth': 3},
 #                  label = "crv")
 
 ```
-`displot`, the replacement of `distplot`, is actually just a wrapper around 3 functions. It's a one-line plot that suppose to do everything. You can not stack plot like with `plt`. You better just use directely the plot function behind it like `kdeplot`. 
+`displot`, the replacement of `distplot`, is actually just a wrapper around 3 functions. It's a one-line plot that suppose to do everything. You can not stack plot like with `plt`. You better just use directely the plot function behind it like `kdeplot`.
