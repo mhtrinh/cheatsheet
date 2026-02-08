@@ -91,4 +91,4 @@ Start: I am here to brainstorm and explore.
 ```
 
 ## /myplan
-See [claude.myplan.md](claude.myplan.md)
+See [claude.myplan.txt](claude.myplan.txt)
