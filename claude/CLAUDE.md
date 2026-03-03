@@ -51,3 +51,7 @@ Applies to all languages.
 - Only use subprocess when really necessary. Ask before using it.
 - Do not use one-line loops with complex conditionals.
 - Use f-string formatting.
+
+## ai-docs
+If the current project has an `ai-docs/` folder: after completing a non-trivial
+implementation (more than a minor fix or rename), remind the user to run `/aidocs-update`.

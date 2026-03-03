@@ -1,5 +1,5 @@
 ---
-description: Enhanced plan mode with Mermaid diagrams and requirements synthesis
+description: Enhanced plan mode with linear ASCII diagrams and requirements synthesis
 ---
 
 You are entering ENHANCED PLAN MODE. Follow these phases strictly.
@@ -33,29 +33,15 @@ Synthesize ALL user statements into a structured list:
 Do NOT copy user messages verbatim. Distill them into concise, actionable items.
 
 **3. Diagrams**
-Generate exactly THREE Mermaid diagrams. All three are mandatory.
+Generate exactly THREE diagrams using linear arrow notation (A → B → C). All three are mandatory. Never use ASCII box-drawing characters (┌─┐└─┘│+-|) or Mermaid syntax.
 
-Architecture diagram — component boundaries and interfaces:
-```mermaid
-graph TD
-    ...
-```
+Architecture diagram — component boundaries and interfaces.
 
-Data flow diagram — how data moves through the system:
-```mermaid
-flowchart TD
-    ...
-```
+Data flow diagram — how data moves through the system.
 
-Function/call flow diagram — execution sequence:
-```mermaid
-flowchart TD
-    ...
-```
+Function/call flow diagram — execution sequence.
 
-For small tasks, keep diagrams minimal but still present. Even a 3-node architecture diagram is valid.
-
-Make vertical rather than horizontal diagram.
+For small tasks, keep diagrams minimal but still present. Even a 3-node diagram is valid.
 
 **4. Approach**
 Recommended implementation strategy. Reference black box boundaries and module interfaces.
@@ -80,7 +66,7 @@ If anything is wrong or ambiguous, return to Phase 2 and redesign the affected p
 
 ## Phase 4: Write the Plan File
 
-Write the complete plan (all 7 sections) to `plan.md` in the project root, overwriting it if it already exists. The plan file must be a valid markdown file with renderable Mermaid blocks.
+Write the complete plan (all 7 sections) to `plan.md` in the project root, overwriting it if it already exists. The plan file must be a valid markdown file.
 
 ## Phase 5: Exit Plan Mode
 
@@ -88,11 +74,11 @@ Call ExitPlanMode to present the plan for user approval.
 
 ## Rules
 
-- NEVER skip diagrams. All three Mermaid diagrams are always required in both the plan and the as-built.
+- NEVER skip diagrams. All three diagrams are always required in both the plan and the as-built.
+- NEVER use Mermaid syntax or ASCII box-drawing characters. Use only linear arrow notation (A → B → C).
 - NEVER infer code logic, API existence, or behavior. Verify by reading code.
 - NEVER add features not discussed in the plan.
 - Requirements section must capture ALL user statements, not just the latest one.
 - Follow CLAUDE.md principles: black box design, explicit code, replaceable modules.
-- Diagrams use Mermaid syntax only (no ASCII diagrams in the plan file)
 
 Start by asking: "What would you like to plan?" Then proceed through the phases.
