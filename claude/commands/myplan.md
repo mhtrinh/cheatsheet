@@ -68,9 +68,6 @@ If anything is wrong or ambiguous, return to Phase 2 and redesign the affected p
 
 Write the complete plan (all 7 sections) to `plan.md` in the project root, overwriting it if it already exists. The plan file must be a valid markdown file.
 
-## Phase 5: Exit Plan Mode
-
-Call ExitPlanMode to present the plan for user approval.
 
 ## Rules
 
