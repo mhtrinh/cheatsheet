@@ -2,31 +2,38 @@
 description: Update ai-docs/ after a non-trivial implementation
 ---
 
-Update `ai-docs/` to reflect the implementation just completed. Run while the implementation is still in context.
+Update `ai-docs/` to reflect recent implementation changes. Run this right after an implementation while context is fresh.
 
-## Protocol
+Read `ai-docs/guidelines.md` before proceeding.
 
-1. From context, list all source files that were touched or created in the implementation.
+## Step 1 — Collect touched files
 
-2. Read `ai-docs/index.md` to get the full list of sub-doc paths.
+From context, list all source files that were touched or created in the implementation.
 
-3. For each sub-doc path, read only its first 30 lines (the frontmatter). Check if any `sources:` entry matches a touched file.
+## Step 2 — Identify affected sub-docs
 
-4. Load only the matching sub-docs fully.
+1. Read `ai-docs/index.md` to get the full list of sub-doc paths.
+2. For each sub-doc path, read only its first 30 lines (the frontmatter). Check if any `sources:` entry matches a touched file from Step 1.
+3. Collect the matching sub-docs.
 
-5. For each matching sub-doc:
-   - Read the source headers listed in its `sources:` frontmatter to understand current behavior.
-   - Update only the behavioral sections affected by the implementation.
-   - Do not add implementation details (no mutex types, lock strategies, internal data structures, algorithm internals).
+## Step 3 — Detect undocumented source files
 
-6. If new modules were added that are not covered by any existing sub-doc:
-   - Determine the appropriate subsystem for the new module.
-   - Add the new source files to that subsystem's sub-doc `sources:` frontmatter, or create a new sub-doc if warranted.
-   - Update `ai-docs/index.md` to reflect any new sub-docs or changed concepts.
+From the touched files, identify any that are NOT listed in any sub-doc's `sources:` frontmatter. These are candidates for:
+- Adding to an existing sub-doc's `sources:` list, or
+- Creating a new sub-doc if they represent a new subsystem/module.
 
-## Rules
+## Step 4 — Update matching sub-docs
 
-- Describe WHAT, not HOW.
-- Only update sections that are actually affected by the implementation.
-- Do not rewrite unrelated sections.
-- All modified sub-docs must retain their `sources:` frontmatter.
+For each matching sub-doc:
+1. Read it fully.
+2. Read the source files listed in its `sources:` frontmatter to understand **current** behavior.
+3. Compare the documented behavior against actual code behavior.
+4. Update only the sections where behavior has diverged.
+
+## Step 5 — Handle new modules
+
+If Step 3 found undocumented source files:
+1. Determine the appropriate subsystem for each.
+2. Add the files to that subsystem's sub-doc `sources:` frontmatter, or create a new sub-doc if warranted.
+3. For new sub-docs, populate using the behavioral sections defined in `ai-docs/guidelines.md`.
+4. Update `ai-docs/index.md` to reflect any new sub-docs or changed concepts.

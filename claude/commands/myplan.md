@@ -77,5 +77,6 @@ Write the complete plan (all 7 sections) to `plan.md` in the project root, overw
 - NEVER add features not discussed in the plan.
 - Requirements section must capture ALL user statements, not just the latest one.
 - Follow CLAUDE.md principles: black box design, explicit code, replaceable modules.
+- Do not write or edit files under ai-docs/ in the plan nor during implementation phase.
 
 Start by asking: "What would you like to plan?" Then proceed through the phases.

@@ -1,0 +1,39 @@
+{
+  "model": "sonnet",
+  "effortLevel": "high",
+  "autoMemoryEnabled": false,
+  "autoDreamEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/mhtrinh/.claude/hooks/on_prompt_submit.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/mhtrinh/.claude/hooks/on_stop.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /home/mhtrinh/.claude/hooks/on_notification.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -12,6 +12,10 @@ Eliminate all flattery, praise, and conversational filler (e.g., 'Nice,' 'Good i
 ## Coding Principles
 Applies to all languages.
 
+### Bug Fixing
+- When fixing bugs: explain the root cause and identify the exact line(s) to change before writing any code. Do not edit until the user confirms the diagnosis.
+- Prefer the minimal fix. Do not touch unrelated functions or reorder code unless the diagnosis specifically requires it.
+
 ### No-Inference Rules
 - Do not infer code logic from names. Read and understand the actual implementation.
 - Do not infer API existence. Use local documentation only as a hint to narrow code search — it can be wrong or describe obsolete behavior. Verify by reading the actual code or running tests. Online documentation is reliable.
@@ -46,6 +50,7 @@ Applies to all languages.
 - Identify core primitives first. Build complexity through composition, not complicated types.
 - Single responsibility per module. Split when a module tries to do too much.
 - When refactoring: identify primitives, draw black-box boundaries, design interfaces, implement incrementally.
+- Read carefully ai-docs/ folder, is existing, to make sure you understand existing data flow and existing architecture: make sure to  leverage existing architecture rather than introducing new patch or re-inventing the wheel.
 
 ## Additional coding style for Python
 - Only use subprocess when really necessary. Ask before using it.
@@ -53,5 +58,10 @@ Applies to all languages.
 - Use f-string formatting.
 
 ## ai-docs
+MANDATORY: Before exploring or searching the codebase for any reason, FIRST read
+the ai-docs/ folder index to understand existing architecture and data flow.
+Do NOT read source files until you have read ai-docs/.
+When spawning an agent to explore the codebase, include this instruction in the agent prompt.
+
 If the current project has an `ai-docs/` folder: after completing a non-trivial
 implementation (more than a minor fix or rename), remind the user to run `/aidocs-update`.
