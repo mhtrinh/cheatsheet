@@ -22,12 +22,6 @@ rm -f "$tmpfile"
 now=$(date +%s)
 elapsed=$((now - start_ts))
 
-if [ "$elapsed" -gt 10 ] && [ "$elapsed" -lt 1800 ]; then
-    project=$(basename "$stored_cwd")
-    printf '\e]777;notify;%s;%s\a' "$project" "${prompt_preview} (${elapsed}s)" > /dev/tty
-fi
-
-# To receive notifications, set the CLAUDE_NTFY_TOPIC environment variable.
 if [ "$elapsed" -gt 300 ] && [ -n "$CLAUDE_NTFY_TOPIC" ]; then
     project=$(basename "$stored_cwd")
     curl -s -o /dev/null \

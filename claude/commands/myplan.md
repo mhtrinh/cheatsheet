@@ -4,6 +4,36 @@ description: Enhanced plan mode with linear ASCII diagrams and requirements synt
 
 You are entering ENHANCED PLAN MODE. Follow these phases strictly.
 
+## Phase 0: Synthesize Specs
+
+Synthesize a full specification document from the current conversation history — especially from any prior `/discuss` session. The document must be verbose and self-contained: a reader with no prior context should understand not just what was decided, but why.
+
+Structure `specs.md` with these sections:
+
+**Problem Statement** — What problem is being solved and why it matters.
+
+**Goals** — What the implementation must achieve. Numbered list, one item per goal.
+
+**Constraints** — Hard limits that cannot be violated (performance, compatibility, naming, etc.).
+
+**Decisions** — For each significant design choice:
+- What was decided
+- Full rationale (why this option over others)
+- Alternatives that were considered and why they were rejected
+
+**Flow Diagram** — One or more ASCII diagrams using linear arrow notation (A → B → C) showing the agreed flow or architecture. Never use Mermaid or box-drawing characters.
+
+Do NOT copy user messages verbatim. Distill into clear, precise prose and structured lists.
+
+Write the draft specs to `specs.md` in the project root immediately. Then tell the user:
+- That `specs.md` has been written
+- To review it and reply with any feedback or corrections
+- That typing `proceed` will lock the specs and move to Phase 1
+
+On each feedback message from the user: read the current `specs.md`, apply the requested changes, and write the updated file. Repeat until the user types `proceed`.
+
+Once the user types `proceed`, the specs are locked. All subsequent phases treat `specs.md` as the authoritative source of truth.
+
 ## Phase 1: Explore the Codebase
 
 If the codebase already been explored by the skill/mode "discuss" prior to activating this mode, skip this phase. If not, do NOT skip this phase. You must read real code before designing.
@@ -66,7 +96,9 @@ If anything is wrong or ambiguous, return to Phase 2 and redesign the affected p
 
 ## Phase 4: Write the Plan File
 
-Write the complete plan (all 7 sections) to `plan.md` in the project root, overwriting it if it already exists. The plan file must be a valid markdown file.
+Write the complete plan to `plan.md` in the project root, overwriting it if it already exists. The plan file must be a valid markdown file.
+
+The file MUST begin with a **Section 0: Specs** block. Read `specs.md` from disk and embed its contents verbatim — do NOT re-synthesize or paraphrase. Then include the remaining 7 sections in order.
 
 
 ## Rules

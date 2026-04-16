@@ -14,8 +14,8 @@ jq -n \
   '{"ts": $ts, "cwd": $cwd, "preview": $preview}' \
   > "/tmp/claude_notify_${session_id}"
 
-# Start heartbeat watcher if not already running
 pidfile="/tmp/claude_watcher_${session_id}.pid"
 if [ ! -f "$pidfile" ] || ! kill -0 "$(cat "$pidfile")" 2>/dev/null; then
-    bash /home/mhtrinh/.claude/hooks/heartbeat_watcher.sh "$session_id" 300 &
+    bash /home/mhtrinh/.claude/hooks/heartbeat_watcher.sh "$session_id" 300 </dev/null >/dev/null 2>/dev/null &
+    disown
 fi

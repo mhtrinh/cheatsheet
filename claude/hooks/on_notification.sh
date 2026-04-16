@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 input=$(cat)
-session_id=$(echo "$input" | jq -r '.session_id')
-message=$(echo "$input" | jq -r '.message')
+notification_type=$(echo "$input" | jq -r '.notification_type')
 
+[ "$notification_type" = "permission_prompt" ] || exit 0
+[ -n "$CLAUDE_NTFY_TOPIC" ] || exit 0
+
+session_id=$(echo "$input" | jq -r '.session_id')
 tmpfile="/tmp/claude_notify_${session_id}"
 [ -f "$tmpfile" ] || exit 0
 
 start_ts=$(jq -r '.ts' < "$tmpfile")
-stored_cwd=$(jq -r '.cwd' < "$tmpfile")
-prompt_preview=$(jq -r '.preview' < "$tmpfile")
-
 now=$(date +%s)
 elapsed=$((now - start_ts))
 
-if [ "$elapsed" -gt 10 ]; then
-    project=$(basename "$stored_cwd")
-    printf '\e]777;notify;%s;%s\a' "$project" "${message} | ${prompt_preview}" > /dev/tty
-fi
+[ "$elapsed" -gt 30 ] || exit 0
+
+message=$(echo "$input" | jq -r '.message')
+curl -s -o /dev/null \
+    -H "Title: Claude needs permission (${elapsed}s)" \
+    -d "$message" \
+    "https://ntfy.sh/${CLAUDE_NTFY_TOPIC}"

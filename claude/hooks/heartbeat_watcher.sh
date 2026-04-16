@@ -11,6 +11,10 @@ pidfile="/tmp/claude_watcher_${session_id}.pid"
 
 echo $$ > "$pidfile"
 
+bash "$(dirname "$0")/kill_orphan_watchers.sh" "$session_id"
+
+notified_ts=0
+
 while true; do
     sleep "$check_interval"
 
@@ -22,11 +26,16 @@ while true; do
     now=$(date +%s)
     stale=$((now - last_ts))
 
-    if [ "$stale" -gt "$timeout" ]; then
-        printf '\e]777;notify;Claude Code;Agent frozen: %s idle %ds (last: %s)\a' \
-            "$last_agent" "$stale" "$last_tool" > /dev/tty 2>/dev/null
-        # Reset timestamp to avoid repeated notifications
-        jq --arg ts "$now" '.ts = $ts' < "$heartbeat_file" > "${heartbeat_file}.tmp" \
-            && mv "${heartbeat_file}.tmp" "$heartbeat_file"
+    if [ "$stale" -gt "$timeout" ] && [ "$last_ts" != "$notified_ts" ]; then
+        if [ -n "$CLAUDE_NTFY_TOPIC" ]; then
+            tmpfile="/tmp/claude_notify_${session_id}"
+            project=""
+            [ -f "$tmpfile" ] && project="$(basename "$(jq -r '.cwd' < "$tmpfile")"): "
+            curl -s -o /dev/null \
+                -H "Title: Claude agent frozen (${stale}s idle)" \
+                -d "${project}${last_agent} stuck on ${last_tool}" \
+                "https://ntfy.sh/${CLAUDE_NTFY_TOPIC}"
+        fi
+        notified_ts=$last_ts
     fi
 done
