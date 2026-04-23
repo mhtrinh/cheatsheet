@@ -4,11 +4,37 @@ description: Enhanced plan mode with linear ASCII diagrams and requirements synt
 
 You are entering ENHANCED PLAN MODE. Follow these phases strictly.
 
-## Phase 0: Synthesize Specs
+## Phase 0: Establish the Spec
 
-Synthesize a full specification document from the current conversation history — especially from any prior `/discuss` session. The document must be verbose and self-contained: a reader with no prior context should understand not just what was decided, but why.
+Three entry modes. Detect in this order; do not fall through once matched.
 
-Structure `specs.md` with these sections:
+**Mode 1 — `specs.md` exists on disk AND was written in the current conversation context.**
+"Written in the current conversation context" means this session (including any `/discuss` or prior `/myplan` turn in the same conversation) produced or edited `specs.md`. Check the conversation history for a prior `Write`/`Edit` to `specs.md` before claiming this mode.
+Adopt it as-is. Do NOT re-synthesize. Do NOT overwrite. `Read` `specs.md` once to load it into the main context, then tell the user: "Using `specs.md` from this session as the planning source." Proceed to Phase 1.
+
+**Mode 1-stale — `specs.md` exists on disk but was NOT written in the current conversation.**
+Do NOT silently adopt. Stale `specs.md` files from unrelated prior work are common. Ask the user via `AskUserQuestion`:
+- A) Use the existing `specs.md` as-is (e.g., a prior session wrote it and context was cleared intentionally).
+- B) Overwrite with a fresh synthesis from the current discussion.
+- C) Ignore it; plan lightweight from conversation only (the old file stays on disk untouched; Phase 4 will skip Section 0).
+
+If A: `Read` `specs.md` and proceed to Phase 1.
+If B: fall through to Mode 2-A.
+If C: fall through to Mode 2-B.
+
+**Mode 2 — No `specs.md` and the session has meaningful discussion.**
+Ask the user (use `AskUserQuestion`):
+- A) Write `specs.md` from the discussion, then plan.
+- B) Skip `specs.md` — plan directly from conversation context (lightweight).
+
+If A: synthesize `specs.md` using the structure below, write it to the project root, and tell the user to review and reply `proceed`. On each feedback message before `proceed`, `Read` the current `specs.md`, apply changes, and write the update. After `proceed` the specs are locked.
+
+If B: do not write `specs.md`. Keep the distilled requirements in the main context for use in Phases 2 and 4. The plan will omit Section 0.
+
+**Mode 3 — No `specs.md` and no discussion.**
+Ask: "What would you like to plan?" Once the user describes the task, re-evaluate under Mode 2.
+
+### Spec Structure (only when writing `specs.md` under Mode 2-A)
 
 **Problem Statement** — What problem is being solved and why it matters.
 
@@ -25,15 +51,6 @@ Structure `specs.md` with these sections:
 
 Do NOT copy user messages verbatim. Distill into clear, precise prose and structured lists.
 
-Write the draft specs to `specs.md` in the project root immediately. Then tell the user:
-- That `specs.md` has been written
-- To review it and reply with any feedback or corrections
-- That typing `proceed` will lock the specs and move to Phase 1
-
-On each feedback message from the user: read the current `specs.md`, apply the requested changes, and write the updated file. Repeat until the user types `proceed`.
-
-Once the user types `proceed`, the specs are locked. All subsequent phases treat `specs.md` as the authoritative source of truth.
-
 ## Phase 1: Explore the Codebase
 
 If the codebase already been explored by the skill/mode "discuss" prior to activating this mode, skip this phase. If not, do NOT skip this phase. You must read real code before designing.
@@ -47,6 +64,13 @@ Launch up to 3 Explore agents in parallel to understand:
 ## Phase 2: Design the Plan
 
 Launch a Plan agent to design the implementation. The plan MUST include ALL sections listed below. No section may be omitted, even for small tasks.
+
+### Spec Handoff to the Plan Agent
+
+The Plan agent is a subagent and does NOT inherit the parent conversation. Give it the spec explicitly based on Phase 0 mode:
+
+- **`specs.md` on disk is the planning source (Mode 1, Mode 1-stale/A, or Mode 2-A):** Instruct the agent, as its first step, to `Read` `specs.md` from the project root. Treat it as the authoritative specification. Do NOT inline the spec contents into the agent prompt — large specs should stay on disk and be read by the agent directly. This is the path that supports a cleared-context session where `specs.md` is the only source of truth.
+- **No `specs.md` source (Mode 1-stale/C or Mode 2-B):** Inline the distilled requirements (goals, constraints, precisions) directly in the Plan agent prompt. No file read needed.
 
 ### Required Plan Sections
 
@@ -98,12 +122,44 @@ If anything is wrong or ambiguous, return to Phase 2 and redesign the affected p
 
 Write the complete plan to `plan.md` in the project root, overwriting it if it already exists. The plan file must be a valid markdown file.
 
-The file MUST begin with a **Section 0: Specs** block. Read `specs.md` from disk and embed its contents verbatim — do NOT re-synthesize or paraphrase. Then include the remaining 7 sections in order.
+Behavior depends on whether `specs.md` is the planning source (Phase 0 Mode 1, Mode 1-stale/A, or Mode 2-A) or not (Mode 1-stale/C or Mode 2-B).
+
+### When `specs.md` is the planning source
+
+`plan.md` MUST begin with a **Section 0: Specs** block whose content is the verbatim contents of `specs.md`. To avoid passing a potentially long spec through the model, embed it via shell concat rather than by reading and re-writing. Use this exact sequence:
+
+1. `Write` `plan.md` with the header only:
+   ```
+   # Plan
+
+   ## Section 0: Specs
+
+   ```
+2. `Bash`: `cat specs.md >> plan.md` — appends the spec bytes directly; they never enter the model's context.
+3. `Bash`: `printf '\n\n' >> plan.md` — separator before the next section.
+4. `Write` or append the remaining sections (Section 1 through Section 7) using the headings and content produced in Phase 2.
+
+Do NOT read `specs.md` and re-emit it. Do NOT paraphrase. The concat step is the only way the spec content enters `plan.md`.
+
+### When `specs.md` is not the planning source
+
+Skip Section 0. `plan.md` starts directly at Section 1. A single `Write` covering Sections 1–7 is sufficient. An old `specs.md` on disk (Mode 1-stale/C) is left untouched and is NOT embedded.
+
+### Section headings
+
+- `## Section 0: Specs` (only when `specs.md` exists)
+- `## Section 1: Context`
+- `## Section 2: Requirements`
+- `## Section 3: Diagrams`
+- `## Section 4: Approach`
+- `## Section 5: Files to Modify`
+- `## Section 6: Reusable Code`
+- `## Section 7: Verification`
 
 
 ## Rules
 
-- NEVER skip diagrams. All three diagrams are always required in both the plan and the as-built.
+- NEVER skip diagrams. All three diagrams are always required in the plan.
 - NEVER use Mermaid syntax or ASCII box-drawing characters. Use only linear arrow notation (A → B → C).
 - NEVER infer code logic, API existence, or behavior. Verify by reading code.
 - NEVER add features not discussed in the plan.
@@ -111,4 +167,4 @@ The file MUST begin with a **Section 0: Specs** block. Read `specs.md` from disk
 - Follow CLAUDE.md principles: black box design, explicit code, replaceable modules.
 - Do not write or edit files under ai-docs/ in the plan nor during implementation phase.
 
-Start by asking: "What would you like to plan?" Then proceed through the phases.
+Start at Phase 0 and proceed through the phases.
