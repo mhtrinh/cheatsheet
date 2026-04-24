@@ -57,8 +57,8 @@ memory. If the user declines, re-suggest every additional +5 decisions.
 [D1] <decision>
      Why: <rationale>
 
-## [O] Open Questions     ← only when populated
-[O1] <question>
+## [O] Open / Proposed    ← only when populated; holds open questions AND agent-proposed entries awaiting user lock-in
+[O1] <question or proposed decision/requirement/constraint>
 
 ## [R] Requirements       ← only when populated
 [R1] <requirement>
@@ -74,7 +74,61 @@ memory. If the user declines, re-suggest every additional +5 decisions.
 - Sections appear only when they have content. Do not pre-create empty sections.
 - Reference numbers are stable. `[D3]` stays `[D3]` even if entries are reordered.
   Always use the next unused number when adding.
-- Patch the spec after each debated problem reaches agreement (not every turn).
 - Use surgical `Edit` on specific `[#]` blocks. Do not rewrite the whole file.
 - Reload (re-read) the spec only when the user explicitly asks.
 - On exit to plan mode, the spec stays as `specs.md`. The plan command may edit it.
+
+### Write discipline (staging + explicit lock-in)
+The agent does NOT author decisions. The user does. The agent stages, the user locks in.
+
+- **Staging rule**: any content the agent infers, proposes, or thinks has been
+  agreed goes into `[O]` only. The agent MUST NOT write `[D]`, `[R]`, `[C]`, or
+  `[A]` entries from its own judgment, ever. No exceptions for "obvious" items.
+- **Lock-in rule**: promotion `[O#] → [D#]` / `[R#]` / `[C#]` requires an
+  explicit lock-in phrase in the user's most recent message. Qualifying phrases:
+  `agreed`, `lock it`, `lock in`, `add to spec`, `confirmed`, or `yes` that
+  references the specific `[O#]` being promoted.
+- **Non-qualifying signals** (do NOT authorize promotion): silence, `ok`,
+  `sounds good`, `makes sense`, `right`, emoji, continued discussion on the
+  topic, or the user moving to a new topic. When in doubt, stay in `[O]`.
+- **Promotion mechanics**: surgical `Edit` that (1) removes the `[O#]` line,
+  (2) inserts the new entry in the target section using the next unused number
+  in THAT section. The retired `[O#]` number is not reused.
+- **Rejection**: if the user rejects an `[O#]`, move it to `[A]` with the
+  rejection reason. Never silently delete.
+- **Direct user authorship**: if the user types the decision/requirement
+  themselves in chat and says to add it, the agent may write it directly to
+  `[D]`/`[R]`/`[C]` without going through `[O]`. This exception applies ONLY
+  when the user's words are the source; paraphrase or summary by the agent
+  still requires `[O]` staging.
+- **When to patch**: after a debated topic reaches user lock-in (not every
+  turn, not on agent-perceived agreement).
+
+### Driving open questions
+- When the user says "next question", "next", "continue", "what's next", or
+  similar without naming a specific `[O#]`, the agent picks the next unresolved
+  `[O#]` itself and drives discussion on it. Pick order: lowest-numbered
+  unresolved `[O#]` first, unless one clearly blocks others (then pick the
+  blocker and say why).
+- State which `[O#]` was chosen before discussing it, so the user can redirect
+  with one word if they meant a different one.
+
+### Spec sweep (when all [O] resolved)
+When the `[O]` section becomes empty (every open item locked in or rejected),
+do NOT declare the spec done. Run a sweep:
+
+1. **Re-read the full spec** (`Read` on `specs.md`, top to bottom).
+2. **Consistency check**: look for contradictions between `[D]`/`[R]`/`[C]`
+   entries, decisions that conflict with the Big Picture, decisions that
+   silently invalidate earlier ones, or rationales (`Why:`) that no longer
+   match the current entry.
+3. **Gap check**: look for topics the spec is silent on that a plan-mode
+   reader would need — missing non-functional requirements (perf, security,
+   failure modes, scale), undefined interfaces between decided components,
+   data lifecycle/ownership gaps, deployment/rollback, observability.
+4. **Report findings in chat** as two lists: `Inconsistencies` and `Gaps`.
+   Do NOT auto-fix `[D]`/`[R]`/`[C]`. For each finding, propose a new `[O#]`
+   entry (inconsistencies framed as "which side wins?", gaps framed as a
+   question). Ask the user to confirm before writing the new `[O#]` lines.
+5. After user confirms, write the new `[O#]` entries and resume normal
+   discussion driving. If the user says the spec is complete, stop sweeping.
