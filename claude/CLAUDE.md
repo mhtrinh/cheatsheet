@@ -6,8 +6,8 @@ Eliminate all flattery, praise, and conversational filler (e.g., 'Nice,' 'Good i
 ## Environment
 - OS: openSUSE Leap 16.0
 - Package preference order: distro package manager (zypper) → pre-built binary → ask before compiling from source.
-- Default Python virtualenv: /data/hieu/opt/venvs/all-venv
-- Other virtualenvs available in /data/hieu/opt/venvs/
+- Default Python virtualenv: /data/hieu/venvs/all-venv
+- Other virtualenvs available in /data/hieu/venvs/
 
 ## Coding Principles
 Applies to all languages.
@@ -35,8 +35,6 @@ Applies to all languages.
   2. Removing it would obscure the primary flow of the parent function.
 - If a function or logical block exceeds 60 lines: ask the user whether to maintain locality or extract before proceeding.
 
-## git
-- Do not put Claude co-author
 
 ## Diagram
 - Always output diagram in console in ASCII format.
@@ -57,6 +55,11 @@ Applies to all languages.
 - Do not use one-line loops with complex conditionals.
 - Use f-string formatting.
 
+## Tool & Platform Configuration
+- When configuring any tool, platform, or CLI (kiro-cli, ClearML, AWS, etc.): ALWAYS search the official online documentation FIRST before proposing a solution.
+- Do NOT rely on introspection tools or training data for configuration answers. They may be incomplete or outdated.
+- If the introspection/internal docs don't show a clean, non-destructive solution, immediately search the web.
+
 ## ai-docs
 MANDATORY: Before exploring or searching the codebase for any reason, FIRST read
 the ai-docs/ folder index to understand existing architecture and data flow.
@@ -65,3 +68,30 @@ When spawning an agent to explore the codebase, include this instruction in the 
 
 If the current project has an `ai-docs/` folder: after completing a non-trivial
 implementation (more than a minor fix or rename), remind the user to run `/aidocs-update`.
+
+## Presenting Choices
+Only present choices when two or more genuinely distinct actions exist. Do
+not manufacture options to fit a format. If there is one real action, state
+it directly.
+
+When asking the user to pick between options, never present them as a flat
+prose list (e.g., "do you want foo or bar or cla?"). Always label each option
+with a letter or number so the user can reply with the label.
+
+Wrong:
+- "Do you want foo or bar or cla?"
+
+Right (letters):
+- A: foo
+- B: bar
+- C: cla
+Reply with A, B, or C.
+
+Right (numbers):
+1. foo
+2. bar
+3. cla
+Reply with 1, 2, or 3.
+
+Applies to every question with two or more discrete options, including inline
+questions in the middle of a longer message.

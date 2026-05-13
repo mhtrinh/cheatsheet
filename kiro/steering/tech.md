@@ -1,0 +1,1 @@
+/home/mhtrinh/cheatsheet/claude/CLAUDE.md
