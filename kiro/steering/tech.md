@@ -1,1 +1,1 @@
-/home/mhtrinh/cheatsheet/claude/CLAUDE.md
+../../claude/CLAUDE.md
